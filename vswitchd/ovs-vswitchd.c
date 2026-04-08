@@ -14,7 +14,6 @@
  */
 
 #include <config.h>
-
 #include <errno.h>
 #include <getopt.h>
 #include <limits.h>
@@ -25,6 +24,7 @@
 #include <sys/mman.h>
 #endif
 
+#include "mcp_server.h"
 #include "bridge.h"
 #include "command-line.h"
 #include "compiler.h"
@@ -122,6 +122,7 @@ main(int argc, char *argv[])
 
     bridge_init(remote);
     free(remote);
+    mcp_server_init();
 
     while (!exit_args.exiting) {
         OVS_USDT_PROBE(main, run_start);
@@ -134,6 +135,7 @@ main(int argc, char *argv[])
             memory_report(&usage);
             simap_destroy(&usage);
         }
+        mcp_server_run();
         bridge_run();
         unixctl_server_run(unixctl);
         netdev_run();
@@ -163,6 +165,7 @@ main(int argc, char *argv[])
     vlog_disable_async();
     ovsrcu_exit();
     dns_resolve_destroy();
+    mcp_server_close();
 
     return 0;
 }
