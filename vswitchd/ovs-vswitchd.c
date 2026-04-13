@@ -142,6 +142,7 @@ main(int argc, char *argv[])
 
         memory_wait();
         bridge_wait();
+        mcp_server_wait();
         unixctl_server_wait(unixctl);
         netdev_wait();
         if (exit_args.exiting) {
