@@ -28,4 +28,13 @@ void bridge_wait(void);
 
 void bridge_get_memory_usage(struct simap *usage);
 
+struct json;
+
+bool bridge_mcp_get_ports(const struct json *arguments,
+                          struct json **resultp, char **errorp);
+bool bridge_mcp_get_flows(const struct json *arguments,
+                          struct json **resultp, char **errorp);
+bool bridge_mcp_get_port_stats(const struct json *arguments,
+                               struct json **resultp, char **errorp);
+
 #endif /* bridge.h */

@@ -29,6 +29,46 @@ Functionality
 * **Endpoint:** ``POST /mcp``  
 * **Response:** ``{"status": "ok"}``
 
+Module 3 – MCP Tool Routing and Hardening
+=========================================
+
+Files Modified
+--------------
+
+* ``vswitchd/mcp_server.c``
+    * Added HTTP request parsing and JSON dispatcher so MCP calls can route to real tool handlers.
+    * Added non-blocking socket handling and ``mcp_server_wait()`` polling so ``ovs-vswitchd`` stays responsive.
+    * Added ``Content-Length`` validation and request-size checks so malformed/incomplete requests are handled safely.
+    * Switched startup/shutdown logs to OVS ``VLOG`` style so runtime logs are consistent with the rest of OVS.
+
+* ``vswitchd/mcp_server.h``
+    * Added ``mcp_server_wait()`` declaration so the main loop can register MCP socket wakeups.
+
+* ``vswitchd/ovs-vswitchd.c``
+    * Hooked ``mcp_server_wait()`` into the wait phase so incoming MCP traffic wakes the poll loop correctly.
+
+* ``vswitchd/bridge.h``
+    * Added MCP bridge handler APIs so request dispatch can call bridge data collectors directly.
+
+* ``vswitchd/bridge.c``
+    * Implemented handlers for ``switch.get_ports``, ``switch.get_flows``, and ``switch.get_port_stats`` so MCP returns useful switch data.
+
+* ``restart.sh``
+    * Simplified to incremental build/install/restart flow so day-to-day development is faster.
+
+* ``build.sh``
+    * Kept a full bootstrap path so a clean rebuild remains one command when needed.
+
+* ``Makefile.am``
+    * Added helper scripts to ``EXTRA_DIST`` so dist checks pass when scripts are tracked in Git.
+
+Functionality
+-------------
+
+* **Supported MCP Tools:** ``switch.get_ports``, ``switch.get_flows``, ``switch.get_port_stats``
+* **Request Safety:** method/path checks, JSON validation, content-length validation, max request-size guard
+* **Response Style:** structured JSON success/error responses for easier debugging and integration
+
 Setup and Run
 =============
 
