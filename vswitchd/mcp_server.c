@@ -105,6 +105,8 @@ static void
 mcp_send_http_json(int fd, int status, const char *status_text, struct json *json)
 {
     char *body = json_to_string(json, JSSF_SORT);
+    size_t body_len = strlen(body);
+    size_t content_len = body_len + 1; /* Include trailing newline. */
     char header[256];
     int n = snprintf(header, sizeof header,
                      "HTTP/1.1 %d %s\r\n"
@@ -112,11 +114,12 @@ mcp_send_http_json(int fd, int status, const char *status_text, struct json *jso
                      "Content-Length: %"PRIuSIZE"\r\n"
                      "Connection: close\r\n"
                      "\r\n",
-                     status, status_text, strlen(body));
+                     status, status_text, content_len);
 
     if (n > 0) {
         mcp_write_all(fd, header, (size_t) n);
-        mcp_write_all(fd, body, strlen(body));
+        mcp_write_all(fd, body, body_len);
+        mcp_write_all(fd, "\n", 1);
     }
     free(body);
 }
